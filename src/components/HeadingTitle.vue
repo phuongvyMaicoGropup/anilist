@@ -1,5 +1,5 @@
 <template lang="">
-      <div class="flex items-center justify-between py-4">
+      <div class="flex items-center justify-between ">
             <p class="text-lg font-semibold">{{title.toUpperCase()}}</p>
             <p :click="changeRoute()">Xem thêm</p>
       </div>

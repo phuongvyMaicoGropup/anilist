@@ -1,45 +1,36 @@
-<template >
-  <div class=" justify-between md:mx-5 lg:mx-10 sm:mx-5 mx-5 ">
+<template>
+  <div class="mx-auto">
+    <div v-if="title">
     <HeadingTitle :title="title" />
+
+    </div>
     <div v-if="hoz == false">
       <div
-        class="
-          overflow-hidden
-          grid
-          2xl:grid-cols-5 2xl:gap-5 2xl:grid-rows-1
-          xl:grid-rows-1
-          lg:grid-rows-1
-          md:grid-rows-1
-          sm:grid-rows-1
-          xl:grid-cols-5 xl:gap-5
-          lg:grid-cols-5 lg:gap-5
-          md:grid-cols-6 md:gap-3
-          sm:grid-cols-5 sm:gap-6
-          grid-cols-3
-          gap-3
-          justify-between
-        "
+        class="grid my-2 grid-rows-1 2xl:grid-cols-5 2xl:gap-5 md:grid-rows-1 sm:grid-rows-1 xl:grid-cols-5 xl:gap-3 lg:grid-cols-5 lg:gap-3 md:grid-cols-5 md:gap-3 sm:grid-cols-3 sm:gap-3 grid-cols-3 gap-3 justify-between"
       >
         <div
-          class="2xl:m-3 xl:m-3 lg:m-3 md:m-3 mr-auto"
+          class="2xl:mx-2 xl:mx-2 lg:mx-2 md:mx-2 sm:mx-1 mx-auto "
           v-for="media in MediaList"
           :key="media.id"
+          :class="{
+            'md:hidden': MediaList.indexOf(media) === MediaList.length - 1 && isNowrap,
+          }"
         >
-          <MediaCard :media="media" />
+          <MediaCard :left="(MediaList.indexOf(media) +1)% 5  ===0 " :media="media" @click="navigateToPage(media.id)" />
+
         </div>
       </div>
     </div>
     <div v-else>
-      <div
-        class="
-        "
-      >
+      <div class="justify-center mx-auto">
         <div
-          class="2xl:m-3 xl:m-3 lg:m-3 md:m-3 mx-auto justify-center"
-          v-for="media in MediaList"
+          class="2xl:m-3 xl:m-3 lg:m-3 md:m-3"
+          v-for="media in MediaList" 
           :key="media.id"
         >
-          <MediaCardHozi :media="media" />
+          <MediaCardHozi @click="navigateToPage(media.id)" :media="media" :index="MediaList.indexOf(media)+1"  />
+          <!-- <MediaCard :media="media" @click="navigateToPage(media.id)" /> -->
+
         </div>
       </div>
     </div>
@@ -47,9 +38,9 @@
 </template>
 <script>
 import HeadingTitle from "./HeadingTitle.vue";
-import MediaCard from "./MediaCard.vue";
+import MediaCard from "./card/MediaCard.vue";
 import gql from "graphql-tag";
-import MediaCardHozi from "./MediaCardHozi.vue";
+import MediaCardHozi from "./card/MediaCardHozi.vue";
 import topAnime from "../graphql/MediaQuery.js";
 
 export default {
@@ -59,12 +50,32 @@ export default {
     MediaCard,
     MediaCardHozi,
   },
+  computed :{
+
+  },
+  data() {
+    return {
+      i: 1,
+      
+    };
+  },
   props: {
     MediaList: Array,
     title: String,
     hoz: Boolean,
+    isNowrap: {
+      type: Boolean,
+      default: false
+    }
+  },
+  methods: {
+    navigateToPage(id) {
+      console.log("navigateToPage" + id);
+      this.$router.push({
+        path: "/anime/" + id,
+      });
+    },
   },
 };
 </script>
-<style lang="">
-</style>
+<style lang=""></style>
