@@ -23,6 +23,7 @@ query ($id: Int ) {
           title {
             userPreferred
           }
+          favourites
         }
       
      
@@ -65,6 +66,7 @@ query ($id: Int ) {
     }
     relations {
       nodes {
+        source 
         id
         title {
           romaji

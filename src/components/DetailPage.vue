@@ -13,10 +13,10 @@
             alt=""
           />
         </div>
-        <div class="flex w-10/12 md:w-11/12 lg:w-10/12 mx-auto md:flex-col sm:flex-col flex-col lg:flex-row">
-          <div class=" md:w-4/12 lg:w-3/12 w-full relative">
+        <div class="flex w-10/12 md:w-11/12 lg:w-10/12 mx-auto sm:flex-col flex-col md:flex-row lg:flex-row h-fit lg:h-72">
+          <div class=" md:w-4/12 lg:w-3/12 w-full relative h-fit">
             <div
-              class="-top-44 md:-top-32 lg:-top-28 absolute h-56 lg:flex-col flex md:flex-col sm:flex flex-row justify-between sm:w-full w-full lg:w-52 md:w-52  "
+              class="-top-44 md:-top-32 lg:-top-28 absolute  lg:flex-col flex md:flex-col sm:flex flex-row justify-between sm:w-full w-full lg:w-52 md:w-52  "
               style="align-items: flex-end "
             >
               <div class="object-cover w-32 sm:w-32 lg:w-52 md:w-52" v-if="Media?.coverImage?.large">
@@ -35,21 +35,23 @@
               </div>
             </div>
           </div>
+          
 
-          <div class="md:w-8/12 lg:w-9/12 w-9/12 text-left mt-2 ml-3 pb-3 bg-white ">
+          <div class="md:w-8/12 lg:w-9/12 w-9/12 text-left mt-2 ml-3 pb-3 ">
             <h1 class="font-medium text-lg my-2">
               {{ Media.title?.userPreferred }}
             </h1>
-            <div class="opacity-70 text-sm max-h-56 overflow-clip">
+            <div class="opacity-70 text-sm max-h-56 overflow-clip sm:hidden hidden lg:block 2xl:block md:block ">
               <p v-html="Media.description"></p>
             </div>
-            <div class="grid grid-cols-3 justify-around text-sm text-slate-400">
-              <a href="">Overview</a>
-              <a href="">Characters</a>
-              <a href="">Staff</a>
-            </div>
+           
           </div>
         </div>
+         <div class="grid grid-cols-3 justify-around text-sm text-slate-400 mt-5 pb-7">
+              <a href="./">Overview</a>
+              <a href="characters">Characters</a>
+              <a href="staffs">Staff</a>
+            </div>
       </div>
       <div
         class="w-11/12 lg:w-10/12 md:w-11/12 justify-between mx-auto md:flex-row lg:flex-row flex sm:flex-col flex-col"
@@ -57,6 +59,8 @@
         <div
           class="bg-white m-2 lg:w-52 h-fit rounded-lg py-2 px-3 flex flex-row w-full lg:flex-col md:w-52 md:flex-col sm:flex-row sm:w-full overflow-scroll"
         >
+          <!-- <Info title="Format" :value="['Ep'+Media.nextAiringEpisode.episode]" /> -->
+
           <Info title="Format" :value="[Media.format]" />
           <Info title="Episodes" :value="[Media.episodes]" />
           <Info title="Episodes duration" :value="[Media.duration + ' mins']" />
@@ -82,7 +86,13 @@
         </div>
 
         <div class="mx-2 md:w-9/12 lg:w-9/12">
-          <div class="text-left font-medium">
+         <div class="text-left font-medium lg:hidden xl:hidden md:hidden sm:block block ">
+            <h2 class="my-2">Description</h2>
+            <div class="opacity-70 text-sm max-h-56 overflow-clip lbg-white rounded p-6 bg-white">
+              <p v-html="Media.description"></p>
+            </div>
+          </div>
+          <div v-if="Media.relations?.nodes" class="text-left font-medium">
             <h2 class="my-2">Relations</h2>
             <div
               class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 sm:grid-cols-1 "
@@ -122,7 +132,11 @@
             </div>
           </div>
           <div class="text-left font-medium">
+            <div class="flex justify-between">
             <h2 class="my-2">Recommendations</h2>
+            <h2 class="my-2 mr-5">Xem thêm</h2>
+              
+            </div>
             <div
               class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:grid-cols-4"
             >

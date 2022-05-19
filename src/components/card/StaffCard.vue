@@ -7,7 +7,7 @@
       <div v-if="staff.node?.image?.large" class="cover w-16 h-20 ">
         <img :src="staff.node?.image?.large" alt="" />
       </div>
-      <div class="m-2 flex flex-col text-left justify-between">
+      <div class="m-2 flex flex-col text-left h-full justify-between">
         <div class="text-slate-500">
                <p>   {{ staff.node?.name?.full }}</p>
 

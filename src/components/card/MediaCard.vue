@@ -25,7 +25,8 @@
       <div class="relative">
         <div class="flex justify-between pb-3">
           <h3 class="">Ep {{ media.nextAiringEpisode?.episode }} in 6 days</h3>
-          <div v-if="media.averageScore > 80">
+          <div v-if="media.averageScore">
+ <div v-if="media.averageScore > 80">
             <i style="color: green" class="fa-regular fa-face-smile"></i>
             {{ media.averageScore }}%
           </div>
@@ -33,6 +34,8 @@
             <i style="color: red" class="fa-regular fa-face-meh"></i>
             {{ media.averageScore }}%
           </div>
+          </div>
+         
         </div>
         <div class="flex">
           <div

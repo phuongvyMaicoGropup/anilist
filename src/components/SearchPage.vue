@@ -1,5 +1,7 @@
 <template>
-  <div class="w-11/12 md:w-11/12 lg:w-10/12 xl:w-10/12 sm:w-11/12 mx-auto">
+  <div
+    class="w-11/12 md:w-11/12 lg:w-10/12 xl:w-10/12 sm:w-11/12 mx-auto min-h-screen"
+  >
     <div class="flex align-middle">
       <i class="fa-solid fa-tags"></i>
       <div v-for="query in queryObject" :key="query">
@@ -12,16 +14,14 @@
       <div v-else class="justify-center">
         <!-- {{searchAnime[0].description}} -->
         <div v-if="searchAnime.data.length > 0">
-          <PostList
-            :hoz="false"
-            :MediaList="searchAnime.data"
-            title=""
-          />
+          <PostList :hoz="false" :MediaList="searchAnime.data" title="" />
           <div class="actions">
-            <button v-if="showMoreEnabled" @click="showMore">Show more</button>
+            <button v-if="searchAnime.pageInfo.hasNextPage" @click="showMore">
+              Show more
+            </button>
           </div>
         </div>
-        <div v-else>No Results</div>
+        <div class="text-lg font-semibold" v-else>No Results</div>
       </div>
     </div>
   </div>
@@ -38,7 +38,7 @@ const searchQuery = gql`
     $format: MediaFormat
     $season: MediaSeason
     $year: Int
-  	$sort : [MediaSort]
+    $sort: [MediaSort]
     $searchString: String
   ) {
     searchAnime: Page(page: $page, perPage: $perPage) {
@@ -47,8 +47,8 @@ const searchQuery = gql`
         hasNextPage
       }
       data: media(
-        sort : $sort
-        genre : $genre
+        sort: $sort
+        genre: $genre
         search: $searchString
         format: $format
         season: $season
@@ -112,98 +112,106 @@ export default {
     };
   },
   methods: {
+    getNextMedia() {
+      window.onscroll = () => {
+        if (this.showMoreEnabled) {
+          let bottomOfWindow =
+            document.documentElement.scrollTop + window.innerHeight ===
+            document.documentElement.offsetHeight;
+          if (bottomOfWindow) {
+            this.page++;
+
+            this.$apollo.queries.searchAnime.fetchMore({
+              variables: {
+                searchString: this.$route.query?.search,
+                season: this.$route.query?.season?.toUpperCase(),
+                genre: this.$route.query?.genre,
+                format: this.$route.query?.format?.toUpperCase(),
+                year: this.$route.query?.year,
+                page: this.page,
+                perPage: 50,
+              },
+              updateQuery: (previousResult, { fetchMoreResult }) => {
+                const newMedia = fetchMoreResult.searchAnime.data;
+                const hasMore =
+                  fetchMoreResult.searchAnime.pageInfo.hasNextPage;
+
+                this.showMoreEnabled = hasMore;
+
+                return {
+                  searchAnime: {
+                    __typename: previousResult.searchAnime.__typename,
+                    // Merging the tag list
+                    data: [...previousResult.searchAnime.data, ...newMedia],
+                    pageInfo: {
+                      currentPage: this.page,
+                      hasNextPage: hasMore,
+                    },
+                  },
+                };
+              },
+            });
+          }
+        }
+      };
+    },
+    handleScroll({ target: { scrollTop, clientHeight, scrollHeight } }) {
+      if (scrollTop + clientHeight >= scrollHeight) this.loadBatch();
+    },
+    loadBatch() {
+      this.client
+        .request(this.query, {
+          limit: this.limit,
+          skip: this.items.length,
+        })
+        .then(this.handleLoad)
+        .catch(console.error);
+    },
+    handleLoad(response) {
+      if (this.respKey) {
+        response = this.respKeyParser.reduce((o, v) => o[v], response);
+      }
+      this.items = this.items.concat(response);
+    },
     deleteTag(value) {
       console.log("Tag deleted" + value);
     },
-    showMore() {
-      this.page++;
-      // Fetch more data and transform the original result
-      this.$apollo.queries.searchQuery.fetchMore({
-        // New variables
-        variables: {
-          page: this.page,
-          perPage: 50,
-        },
-        // Transform the previous result with new data
-        updateQuery: (previousResult, { fetchMoreResult }) => {
-          const newAnime = fetchMoreResult.searchQuery.data;
-          console.log("new Anime");
-          console.log({ newAnime });
-          const hasMore = fetchMoreResult.searchQuery.pageInfo.hasNextPage;
 
-          this.showMoreEnabled = hasMore;
-          console.log(    this.showMoreEnabled);
-
-          return {
-            searchAnime: {
-              __typename: previousResult.searchAnime.__typename,
-              // Merging the tag list
-              data: [...previousResult.searchQuery.data, ...newAnime],
-              hasMore,
-            },
-          };
-        },
-      });
-    },
     deleteSearch() {},
   },
-  // apollo: {
-  //   searchAnime: {
-  //     loadingKey: "loading",
-  //     // manual: true,
-  //     query: searchQuery,
-  //     variables: {
-  //       // search : "1233333",
-  //       page: 0,
-  //       perPage: 50,
-  //     },
-  //     result({ data, loading }) {
-  //       if (!loading) {
-  //         console.log(data);
-  //         this.searchAnime = data.searchAnime;
-  //         console.log("11111111111");
-  //         console.log(this.$route.query.search);
-  //         // this.pageInfo = data.pageInfo
-  //       }
-  //     },
-  //   },
-  // },
+  apollo: {
+    searchAnime: {
+      loadingKey: "loading",
+      query: searchQuery,
+      variables: {
+        page: 0,
+        perPage: 50,
+      },
+      update: (data) => data.searchAnime,
+    },
+  },
+  mounted() {
+    this.getNextMedia();
+  },
 
   computed: {
     queryObject: function () {
       console.log("Bien ne : " + this.$route.query);
 
-      return this.$route.query
+      return this.$route.query;
     },
   },
   watch: {
     queryObject(value) {
-      this.$apollo
-        .query({
-          query: searchQuery,
-          // client: "questionnaire",
-          variables: {
-            searchString: this.$route.query?.search ,
-            season: this.$route.query?.season?.toUpperCase(),
-            genre: this.$route.query?.genre,
-            format: this.$route.query?.format?.toUpperCase(),
-            year: this.$route.query?.year,
-            page: 0,
-            perPage: 50,
-          },
-        })
-        .then((data) => {
-          console.log("Apollo data in watch");
-          console.log(data);
-          this.searchAnime = data.data.searchAnime;
-          // console.log("11111111111");
-          // console.log(this.$route.query.search);
-        })
-        .catch((error) => {
-          this.error = error;
-          console.log(error)
-          // alert("E " + error);
-        });
+      this.$apollo.queries.searchAnime.refetch({
+        searchString: this.$route.query?.search,
+        season: this.$route.query?.season?.toUpperCase(),
+        genre: this.$route.query?.genre,
+        format: this.$route.query?.format?.toUpperCase(),
+        year: this.$route.query?.year,
+        page: 0,
+        perPage: 50,
+      });
     },
   },
   emits: ["delete-tag"],
@@ -214,7 +222,7 @@ export default {
         query: searchQuery,
         // client: "questionnaire",
         variables: {
-          searchString: this.$route.query?.search ,
+          searchString: this.$route.query?.search,
           season: this.$route.query?.season?.toUpperCase(),
           genre: this.$route.query?.genre,
           format: this.$route.query?.format?.toUpperCase(),

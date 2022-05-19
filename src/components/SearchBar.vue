@@ -134,7 +134,7 @@ export default {
     },
     isDisplay(){
       console.log(this.$route.name )
-      return  this.$route.name !=="detail";
+      return  this.$route.name !=="detail" && this.$route.name !=="overview-detail";
     },
     searchQuery: function () {
       return [
